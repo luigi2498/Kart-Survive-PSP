@@ -4,7 +4,7 @@ project(KartSurvive)
 set(CMAKE_C_STANDARD 11)
 
 add_executable(KartSurvive main.c)
-add_subdirectory(./QuickGame QuickGame)
+add_subdirectory(./QuickGame/ QuickGame)
 
 target_link_libraries(KartSurvive PUBLIC QuickGame)
 target_include_directories(KartSurvive PUBLIC QuickGame/include)
