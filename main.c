@@ -4,7 +4,7 @@
 // Global variables.
 QGSprite_t bg, base, gameover, pipe;    // Al the simple assets.
 QGSprite_t score[10];   // Score sprites.
-QGSprite kart[3];       // Main character sprite.
+QGSprite_t kart[2];     // Main character sprite (3 images).
 
 // Time variables.
 QGTimer timer;          // Global timer.
@@ -53,9 +53,9 @@ void accelerateAnim(double dt){
 }
 
 void update(double dt){     // Update inputs (keys-buttons).
-    QuickGame_Input_Update();
+    QuickGame_Input_Update();   // Update input.
 
-    accelerateAnim(dt);
+    accelerateAnim(dt);         // Update character animation.
 }
 
 void drawBaseScroll(){      // Background scroll method.
@@ -96,10 +96,24 @@ void loadSprites(){     // Loading the sprites for the game.
     };
     base = QuickGame_Sprite_Create_Contained(240, 16, 256, 64, baseTexInfo);
 
-    QGTexInfo kartTexInfo = {   // Mario small kart sprite.
-        .filename = "./assets/sprites/player/mario-small.png",
+    QGTexInfo kartIdle = {   // Mario small kart sprite (idle).
+        .filename = "./assets/sprites/player/mario-small1.png",
         .flip = true,
         .vram = 0
     };
-    kart = QuickGame_Sprite_Create_Contained(160, 16, 34, 22, kartTexInfo);
+    kart[0] = QuickGame_Sprite_Create_Contained(120, 64, 68, 44, kartIdle);
+
+    QGTexInfo kart1 = {   // Mario small kart sprite (accelerate 1).
+        .filename = "./assets/sprites/player/mario-small2.png",
+        .flip = true,
+        .vram = 0
+    };
+    kart[1] = QuickGame_Sprite_Create_Contained(120, 64, 68, 44, kart1);
+
+    QGTexInfo kart2 = {   // Mario small kart sprite (accelerate 2).
+        .filename = "./assets/sprites/player/mario-small3.png",
+        .flip = true,
+        .vram = 0
+    };
+    kart[2] = QuickGame_Sprite_Create_Contained(120, 64, 68, 44, kart2);
 }
