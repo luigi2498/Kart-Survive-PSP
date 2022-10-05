@@ -9,7 +9,7 @@
 // Texture variables.
 QGSprite_t bg, base, gameover, pipe;    // Al the simple assets.
 QGSprite_t score[10];   // Score sprites.
-QGSprite_t kart[2];     // Main character sprite (3 images).
+QGSprite_t kart[3];     // Main character sprite (3 images + buffer).
 
 // Time variables.
 QGTimer timer;
@@ -52,20 +52,20 @@ int main(){
         return 1;
     }
 
-    QuickGame_Graphics_Set2D();     // Set the Game's graphics.
+    QuickGame_Graphics_Set2D();     // Set the Game graphics.
     QuickGame_Timer_Start(&timer);  // Init the timer.
 
-    srand(time(NULL));      
+    srand(time(NULL));      // Just for the rand() function.
 
-    loadSprites();
-    resetGame();
+    loadSprites();          // Load all the game sprites.
+    resetGame();            // Reset condition.
 
     while (QuickGame_Running()){    // Game's main loop.
         update(QuickGame_Timer_Delta(&timer));  // Update current timer.
-        draw();
+        draw();     // Render.
     }
 
-    QuickGame_Terminate();          // End state.
+    QuickGame_Terminate();  // End state.
     return 0;
 }
 
@@ -91,18 +91,18 @@ void resetGame(){       // Reset to default values.
     for (int i = 0; i < 3; i++){
         pipes[i].x = 512 + 192 * i;         // X position plus an offset (out screen).
         pipes[i].y = 96 + rand() % 128;     // Y position between 96 and 128.
-        pipes[i].active = true;
+        pipes[i].active = true;             // Instance a pipe.
     }
 }
 
 void animationUpdate(){     // Character's state.
-    kart[currentAnimation] -> transform.position.y = kart_y;    
+    kart[currentAnimation] -> transform.position.y = kart_y;    // Jump.
 
-    if (vel_y < -20) kart[currentAnimation] -> transform.rotation = -30.0f;
+    if (vel_y < -20) kart[currentAnimation] -> transform.rotation = -30.0f;     // Down rotation.
 
-    else if (vel_y >= -20 && vel_y <= 20) kart[currentAnimation] -> transform.rotation = 0.0f;
+    else if (vel_y >= -20 && vel_y <= 20) kart[currentAnimation] -> transform.rotation = 0.0f;  // Reset rotation.
 
-    else if (vel_y > 20) kart[currentAnimation] -> transform.rotation = 30.0f;
+    else if (vel_y > 20) kart[currentAnimation] -> transform.rotation = 30.0f;  // Up rotation.
 }
 
 void update(double dt){     // Update inputs (keys-buttons).
@@ -116,7 +116,7 @@ void update(double dt){     // Update inputs (keys-buttons).
 
         // If X button is pressed (start the game).
         if (QuickGame_Button_Pressed(PSP_CTRL_CROSS)){
-            started = true;
+            started = true;     // Game started.
             vel_y = 192;        // Jump.
         }
 
@@ -196,27 +196,27 @@ void drawScore(){           // Draw score.
     float xOffset, xn;      // x offset and x current position.
 
     while(sc > 0){      // For all digits.
-        sc /= 10;
-        digits++;
+        sc /= 10;       // Ten's multiple
+        digits++;       // Increase digits.
     }
 
     xOffset = -((float)digits - 1) / 2.0f;     // x offset for the score position.
-    xOffset *= 24.0f;   // Spaced.
+    xOffset *= 12.0f;   // Spaced.
 
     xn = 0.0f;          // Current position.
 
-    sc = currentScore;
+    sc = currentScore;  // Update score auxiliar variable.
     
-    while(sc > 0){      // For all digits.
-        int c = sc % 10;
-        sc /= 10;
+    while(sc > 0){          // For all digits.
+        int c = sc % 10;    // Score module 10.
+        sc /= 10;           // Ten's multiple
 
-        score[c] -> transform.position.x = -xOffset + 240 - xn;
-        score[c] -> transform.position.y = 192;
+        score[c] -> transform.position.x = -xOffset + 240 - xn;     // Move on x axis.
+        score[c] -> transform.position.y = 192;                     // Move on y axis.
 
         xn += 24.0f;    // Update x position.
 
-        QuickGame_Sprite_Draw(score[c]);
+        QuickGame_Sprite_Draw(score[c]);    // Draw sprite.
     }
 
 }
@@ -255,21 +255,21 @@ void loadSprites(){     // Loading the sprites for the game.
     base = QuickGame_Sprite_Create_Contained(240, 16, 256, 64, baseTexInfo);
 
     QGTexInfo kartIdle = {   // Small kart sprite (idle).
-        .filename = "./assets/sprites/player/mario-small1.png",
+        .filename = "./assets/sprites/player/luigi-small1.png",
         .flip = true,
         .vram = 0
     };
     kart[0] = QuickGame_Sprite_Create_Contained(120, 68, 68, 44, kartIdle);
 
     QGTexInfo kart1 = {     // Small kart sprite (accelerate 1).
-        .filename = "./assets/sprites/player/mario-small2.png",
+        .filename = "./assets/sprites/player/luigi-small1.png",
         .flip = true,
         .vram = 0
     };
     kart[1] = QuickGame_Sprite_Create_Contained(120, 68, 68, 44, kart1);
 
     QGTexInfo kart2 = {     // Small kart sprite (accelerate 2).
-        .filename = "./assets/sprites/player/mario-small3.png",
+        .filename = "./assets/sprites/player/luigi-small1.png",
         .flip = true,
         .vram = 0
     };
@@ -295,7 +295,7 @@ void loadSprites(){     // Loading the sprites for the game.
     pipe = QuickGame_Sprite_Create_Contained(0, 0, 64, 256, pipeInfo);
 
     for (int i = 0; i < 10; i++){
-        char filename[256];
+        char filename[256];     // Buffer for all the files names.
         sprintf(filename, "./assets/sprites/count/%d.png", i);
 
         QGTexInfo scoreInfo = {     // Score sprites.
