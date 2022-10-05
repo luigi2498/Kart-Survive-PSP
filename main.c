@@ -143,6 +143,8 @@ void update(double dt){     // Update inputs (keys-buttons).
     else{
         QuickGame_Timer_Reset(&timer);  // Reset timer.
 
+        currentAnimation = 0;
+
         if (QuickGame_Button_Pressed(PSP_CTRL_CROSS)){  // Reset the game if X is pressed.
             resetGame();
         }
@@ -215,21 +217,21 @@ void loadSprites(){     // Loading the sprites for the game.
     base = QuickGame_Sprite_Create_Contained(240, 16, 256, 64, baseTexInfo);
 
     QGTexInfo kartIdle = {   // Mario small kart sprite (idle).
-        .filename = "./assets/sprites/player/mario-small1.png",
+        .filename = "./assets/sprites/player/luigi-small1.png",
         .flip = true,
         .vram = 0
     };
     kart[0] = QuickGame_Sprite_Create_Contained(120, 68, 68, 44, kartIdle);
 
     QGTexInfo kart1 = {   // Mario small kart sprite (accelerate 1).
-        .filename = "./assets/sprites/player/mario-small2.png",
+        .filename = "./assets/sprites/player/luigi-small1.png",
         .flip = true,
         .vram = 0
     };
     kart[1] = QuickGame_Sprite_Create_Contained(120, 68, 68, 44, kart1);
 
     QGTexInfo kart2 = {   // Mario small kart sprite (accelerate 2).
-        .filename = "./assets/sprites/player/mario-small3.png",
+        .filename = "./assets/sprites/player/luigi-small1.png",
         .flip = true,
         .vram = 0
     };
