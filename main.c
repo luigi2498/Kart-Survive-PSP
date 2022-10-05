@@ -1,10 +1,12 @@
 #include <QuickGame.h>  // QuickGame API.
 #include <gu2gl.h>      // OpenGL header redefined.
 #include <pspctrl.h>    // PSPSDK header for inputs.
-#include <stdlib.h>
-#include <time.h>
+#include <stdlib.h>     // Import the rand() function.
+#include <time.h>       // Utillities for the random generation.
+#include <stdio.h>      // Input output functions.
 
 // Global variables.
+// Texture variables.
 QGSprite_t bg, base, gameover, pipe;    // Al the simple assets.
 QGSprite_t score[10];   // Score sprites.
 QGSprite_t kart[2];     // Main character sprite (3 images).
@@ -18,6 +20,9 @@ float animationTime = 0.0f;
 
 // Character data.
 float kart_y, vel_y;
+
+// Score.
+int currentScore;
 
 // Game state.
 bool started, dead;
@@ -37,6 +42,7 @@ void resetGame();               // Game control.
 void update(double);            // For inputs.
 void drawPipes();               // For obstacles.
 void drawBaseScroll();          // For background.
+void drawScore();               // For score.
 void draw();                    // Draw sprites.
 void loadSprites();             // Load sprites.
 
@@ -80,6 +86,7 @@ void resetGame(){       // Reset to default values.
     dead = false;       // Condition.
     kart_y = 68.0f;     // Initial position.
     vel_y = 0.0f;       // Reset vertical speed.
+    currentScore = 0;   // Initial score.
 
     for (int i = 0; i < 3; i++){
         pipes[i].x = 512 + 192 * i;         // X position plus an offset (out screen).
@@ -127,7 +134,7 @@ void update(double dt){     // Update inputs (keys-buttons).
                 // Pipes passed.
                 if (pipes[i].x < 160 && pipes[i].active){
                     pipes[i].active = false;    // Deactivate it.
-                    // Increase score.
+                    currentScore++;             // Increase score.
                 }
 
                 // Pipes respawning.
@@ -141,9 +148,8 @@ void update(double dt){     // Update inputs (keys-buttons).
     }
 
     else{
+        currentAnimation = 0;           // Stop kart animation.
         QuickGame_Timer_Reset(&timer);  // Reset timer.
-
-        currentAnimation = 0;
 
         if (QuickGame_Button_Pressed(PSP_CTRL_CROSS)){  // Reset the game if X is pressed.
             resetGame();
@@ -184,6 +190,37 @@ void drawBaseScroll(){      // Background scroll method.
     glTexOffset(0.0f, 0.0f);                // Reset scroll.
 }
 
+void drawScore(){           // Draw score.
+    int sc = currentScore;  // Score.
+    int digits = 0;         // Quantity of digits.
+    float xOffset, xn;      // x offset and x current position.
+
+    while(sc > 0){      // For all digits.
+        sc /= 10;
+        digits++;
+    }
+
+    xOffset = -((float)digits - 1) / 2.0f;     // x offset for the score position.
+    xOffset *= 24.0f;   // Spaced.
+
+    xn = 0.0f;          // Current position.
+
+    sc = currentScore;
+    
+    while(sc > 0){      // For all digits.
+        int c = sc % 10;
+        sc /= 10;
+
+        score[c] -> transform.position.x = -xOffset + 240 - xn;
+        score[c] -> transform.position.y = 192;
+
+        xn += 24.0f;    // Update x position.
+
+        QuickGame_Sprite_Draw(score[c]);
+    }
+
+}
+
 void draw(){    // Render loop.
     QuickGame_Graphics_Start_Frame();   // Start frame.
     QuickGame_Graphics_Clear();         // Clear graphics.
@@ -192,67 +229,80 @@ void draw(){    // Render loop.
     drawPipes();                        // Draw pipes.
     drawBaseScroll();                   // Background scroll animation.
 
-    if (dead){      // If the character dies...
-        QuickGame_Sprite_Draw(gameover);    // Game Over screen.
-    }
-
     QuickGame_Sprite_Draw(kart[currentAnimation]);  // Draw main character.
+
+    // If the character dies...
+    if (dead) QuickGame_Sprite_Draw(gameover);    // Display game over screen.
+
+    drawScore();        // Draw score on screen.
 
     QuickGame_Graphics_End_Frame(true);     // End frame.
 }
 
 void loadSprites(){     // Loading the sprites for the game.
     QGTexInfo bgTexInfo = {     // Backgroud sprite.
-        .filename = "./assets/sprites/bg.png",
+        .filename = "./assets/sprites/background/bg2.png",
         .flip = true,
         .vram = 0
     };
     bg = QuickGame_Sprite_Create_Contained(240, 192, 512, 512, bgTexInfo);
 
     QGTexInfo baseTexInfo = {   // Floor sprite.
-        .filename = "./assets/sprites/slide.png",
+        .filename = "./assets/sprites/misc/slide.png",
         .flip = true,
         .vram = 0
     };
     base = QuickGame_Sprite_Create_Contained(240, 16, 256, 64, baseTexInfo);
 
-    QGTexInfo kartIdle = {   // Mario small kart sprite (idle).
-        .filename = "./assets/sprites/player/luigi-small1.png",
+    QGTexInfo kartIdle = {   // Small kart sprite (idle).
+        .filename = "./assets/sprites/player/mario-small1.png",
         .flip = true,
         .vram = 0
     };
     kart[0] = QuickGame_Sprite_Create_Contained(120, 68, 68, 44, kartIdle);
 
-    QGTexInfo kart1 = {   // Mario small kart sprite (accelerate 1).
-        .filename = "./assets/sprites/player/luigi-small1.png",
+    QGTexInfo kart1 = {     // Small kart sprite (accelerate 1).
+        .filename = "./assets/sprites/player/mario-small2.png",
         .flip = true,
         .vram = 0
     };
     kart[1] = QuickGame_Sprite_Create_Contained(120, 68, 68, 44, kart1);
 
-    QGTexInfo kart2 = {   // Mario small kart sprite (accelerate 2).
-        .filename = "./assets/sprites/player/luigi-small1.png",
+    QGTexInfo kart2 = {     // Small kart sprite (accelerate 2).
+        .filename = "./assets/sprites/player/mario-small3.png",
         .flip = true,
         .vram = 0
     };
     kart[2] = QuickGame_Sprite_Create_Contained(120, 68, 68, 44, kart2);
 
-    for (int i = 0; i < 3; i++){        // Kart's hitbox.
+    for (int i = 0; i < 3; i++){     // Kart's hitbox.
         kart[i] -> aabb_size.x = 16;
         kart[i] -> aabb_size.y = 16;
     }
 
-    QGTexInfo gameoverTexInfo = {   // Mario small kart sprite (accelerate 2).
-        .filename = "./assets/sprites/game-over.png",
+    QGTexInfo gameoverTexInfo = {   // Game over logo.
+        .filename = "./assets/sprites/misc/game-over.png",
         .flip = true,
         .vram = 0
     };
     gameover = QuickGame_Sprite_Create_Contained(240, 136, 256, 64, gameoverTexInfo);
 
-    QGTexInfo pipeInfo = {
-        .filename = "./assets/sprites/pipe.png",
+    QGTexInfo pipeInfo = {          // Pipe sprite.
+        .filename = "./assets/sprites/misc/pipe.png",
         .flip = true,
         .vram = 0
     };
     pipe = QuickGame_Sprite_Create_Contained(0, 0, 64, 256, pipeInfo);
+
+    for (int i = 0; i < 10; i++){
+        char filename[256];
+        sprintf(filename, "./assets/sprites/count/%d.png", i);
+
+        QGTexInfo scoreInfo = {     // Score sprites.
+            .filename = filename,
+            .flip = true,
+            .vram = 0
+        };
+        score[i] = QuickGame_Sprite_Create_Contained(240, 136, 32, 64, scoreInfo);
+    }
 }
